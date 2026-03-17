@@ -14,9 +14,11 @@ class Settings(BaseSettings):
     # ─────────────────────────────────────────────────────────────────
     # AWS Credentials
     # ─────────────────────────────────────────────────────────────────
-    aws_access_key_id: str = Field(..., alias="AWS_ACCESS_KEY_ID")
-    aws_secret_access_key: str = Field(..., alias="AWS_SECRET_ACCESS_KEY")
-    aws_session_token: str | None = Field(default=None, alias="AWS_SESSION_TOKEN")
+    aws_access_key_id: str = Field(..., validation_alias="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: str = Field(..., validation_alias="AWS_SECRET_ACCESS_KEY")
+    aws_session_token: str | None = Field(
+        default=None, validation_alias="AWS_SESSION_TOKEN"
+    )
     aws_region: str = Field(
         "eu-west-1", validation_alias=AliasChoices("AWS_REGION", "AWS_DEFAULT_REGION")
     )
@@ -25,22 +27,26 @@ class Settings(BaseSettings):
     # Bedrock Models
     # ─────────────────────────────────────────────────────────────────
     llm_model_id: str = Field(
-        "us.anthropic.claude-3-5-sonnet-20241022-v2:0", alias="LLM_MODEL_ID"
+        "us.anthropic.claude-3-5-sonnet-20241022-v2:0", validation_alias="LLM_MODEL_ID"
     )
     embedding_model_id: str = Field(
-        "amazon.titan-embed-text-v2:0", alias="EMBED_MODEL_ID"
+        "amazon.titan-embed-text-v2:0", validation_alias="EMBED_MODEL_ID"
     )
 
     # ─────────────────────────────────────────────────────────────────
     # RAG
     # ─────────────────────────────────────────────────────────────────
-    top_k: int = Field(5, alias="TOP_K")
+    top_k: int = Field(5, validation_alias="TOP_K")
 
     # ─────────────────────────────────────────────────────────────────
     # ChromaDB
     # ─────────────────────────────────────────────────────────────────
-    chroma_persist_dir: str = Field("data/chroma_db", alias="CHROMA_PERSIST_DIR")
-    chroma_collection_name: str = Field("ikea_catalog", alias="CHROMA_COLLECTION_NAME")
+    chroma_persist_dir: str = Field(
+        "data/chroma_db", validation_alias="CHROMA_PERSIST_DIR"
+    )
+    chroma_collection_name: str = Field(
+        "ikea_catalog", validation_alias="CHROMA_COLLECTION_NAME"
+    )
 
 
 # Instancia global

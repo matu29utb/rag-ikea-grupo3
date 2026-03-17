@@ -4,6 +4,7 @@ IKEA RAG Chat — Streamlit conversational interface.
 Run with:
     streamlit run app/main.py
 """
+
 from __future__ import annotations
 
 import sys
@@ -16,17 +17,15 @@ from langchain_aws import ChatBedrock
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnablePassthrough
 from pydantic import SecretStr
-
-# ── Make sure the project root is on sys.path ─────────────────────────────────
-_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(_ROOT))
-
 from config.settings import Settings
 from src.embeddings.aws_embeddings import get_embeddings
 from src.retrieval.retriever import SmartRetriever
 from src.vectorstore.chroma_store import ChromaVectorStore
+
+# ── Make sure the project root is on sys.path ─────────────────────────────────
+_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(_ROOT))
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -58,13 +57,13 @@ _PROMPT = ChatPromptTemplate.from_messages(
 # ── Cached resource: heavy components ────────────────────────────────────────
 @st.cache_resource(show_spinner="Conectando a AWS Bedrock y ChromaDB…")
 def _load_components():
-    settings = Settings()
+    settings = Settings()  # type: ignore[call-arg]
     embeddings = get_embeddings(settings)
     vector_store = ChromaVectorStore(embeddings, settings)
     retriever = SmartRetriever(vector_store, settings)
     llm = ChatBedrock(
-        model_id=settings.llm_model_id,
-        region_name=settings.aws_region,
+        model=settings.llm_model_id,
+        region=settings.aws_region,
         aws_access_key_id=SecretStr(settings.aws_access_key_id),
         aws_secret_access_key=SecretStr(settings.aws_secret_access_key),
     )
@@ -93,7 +92,9 @@ def _ask(question: str, retriever: SmartRetriever, llm: ChatBedrock) -> dict:
     history = _build_history()
 
     chain = _PROMPT | llm | StrOutputParser()
-    answer = chain.invoke({"context": context, "history": history, "question": question})
+    answer = chain.invoke(
+        {"context": context, "history": history, "question": question}
+    )
     return {"answer": answer, "source_documents": docs}
 
 
@@ -133,7 +134,9 @@ def _render_sources(sources: List) -> None:
 
 
 # ── Chat ──────────────────────────────────────────────────────────────────────
-def render_chat(retriever: SmartRetriever, llm: ChatBedrock, settings: Settings) -> None:
+def render_chat(
+    retriever: SmartRetriever, llm: ChatBedrock, settings: Settings
+) -> None:
     col_title, col_btn = st.columns([6, 1])
     with col_title:
         st.title("🪑 IKEA RAG Chat")
