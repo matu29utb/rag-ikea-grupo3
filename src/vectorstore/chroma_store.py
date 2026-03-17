@@ -4,6 +4,7 @@ ChromaDB vector store wrapper.
 Persists embeddings to disk so they survive restarts.
 Provides CRUD helpers and convenience methods consumed by the retrieval layer.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
