@@ -1,0 +1,37 @@
+# ── Core LangChain ──────────────────────────────────────────────────────────
+langchain>=1.0.0
+langchain-core>=1.0.0
+langchain-community>=0.4.0
+langchain-classic>=1.0.0
+langchain-aws>=0.2.0
+langchain-chroma>=0.1.4
+langchain-text-splitters>=0.3.0
+
+# ── AWS SDK ──────────────────────────────────────────────────────────────────
+boto3>=1.35.0
+
+# ── Vector Database ───────────────────────────────────────────────────────────
+chromadb>=0.5.0
+
+# ── Document Loaders ──────────────────────────────────────────────────────────
+pypdf>=4.0.0           # PDF loading
+docx2txt>=0.8          # Word documents
+python-pptx>=1.0.0     # PowerPoint presentations
+
+# ── OCR ───────────────────────────────────────────────────────────────────────
+pdf2image>=1.17.0      # Convert PDF pages to images for OCR
+Pillow>=10.4.0         # Image processing
+
+# ── Streamlit UI ──────────────────────────────────────────────────────────────
+streamlit>=1.40.0
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pydantic-settings>=2.6.0
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+loguru>=0.7.0
+
+# ── PDF Generation (para scripts de ejemplo) ──────────────────────────────────
+reportlab>=4.0.0       # Generación de PDFs

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Env
+.env
+
+# VS Code
+.vscode/
+
+# ChromaDB persistent data
+data/chroma_db/
+**/data/chroma_db/
+
+# Raw uploaded docs (keep directory, ignore content)
+data/raw/*
+!data/raw/.gitkeep
+**/data/raw/*
+!**/data/raw/.gitkeep
+
+# OCR temp files
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
