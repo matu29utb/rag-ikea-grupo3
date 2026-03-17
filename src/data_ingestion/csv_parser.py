@@ -86,10 +86,13 @@ class IKEACatalogParser:
             area_m2: float = round(width_m * depth_m, 4)
 
             # Creamos el contenido semantico para el embedding
-            page_content: str = (
+            page_content = (
                 f"Producto: {nombre}. "
                 f"Categoria: {row.get('category', 'General')}. "
                 f"Descripcion: {desc}. "
+                f"Precio: {float(row.get('price') or 0.0)} euros. "
+                f"Medidas (Ancho x Profundo x Alto): {float(row.get('width') or 0.0)} x {float(row.get('depth') or 0.0)} x {float(row.get('height') or 0.0)} cm. "
+                f"Area: {area_m2} metros cuadrados. "
                 f"Diseñador: {row.get('designer', 'IKEA')}. "
                 f"Colores adicionales disponibles: {row.get('other_colors', 'No')}."
             )
