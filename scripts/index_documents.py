@@ -7,13 +7,13 @@ Opciones:
     --dir: Directorio raíz de los documentos (default: data/raw)
     --clear: Limpiar la colección existente antes de indexar
     --no-recursive: Solo indexar archivos en el directorio raíz (sin subcarpetas)
-    """
+"""
+
 from __future__ import annotations
 
 import argparse
 import sys
 from pathlib import Path
-from unittest import loader
 
 # Añadir el directorio raíz del proyecto al sys.path para permitir imports relativos
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -34,7 +34,7 @@ def parse_args() -> argparse.Namespace:
         epilog=__doc__,
     )
     parser.add_argument(
-        "--dir", # Directorio raíz de los documentos (data/raw/)
+        "--dir",  # Directorio raíz de los documentos (data/raw/)
         type=str,
         default="data/raw",
         required=True,
@@ -42,12 +42,12 @@ def parse_args() -> argparse.Namespace:
         help="Directory containing the documents to index",
     )
     parser.add_argument(
-        "--clear", # Opción para limpiar la colección existente antes de indexar
+        "--clear",  # Opción para limpiar la colección existente antes de indexar
         action="store_true",
         help="⚠️  Clear the existing ChromaDB collection before indexing",
     )
     parser.add_argument(
-        "--no-recursive", # Opción para no procesar subdirectorios
+        "--no-recursive",  # Opción para no procesar subdirectorios
         action="store_true",
         help="Only index files in the top-level directory (skip sub-folders)",
     )
@@ -56,7 +56,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    settings = Settings()
+    settings = Settings()  # type: ignore[call-arg]
 
     logger.info("Initialising embeddings and vector store…")
 
@@ -110,9 +110,8 @@ def main() -> None:
                 logger.info(f"Parsing PDF: {pdf_file.name}")
 
                 # Instancia de IKEAPDFParser con la ruta del archivo PDF y el nombre de la fuente
-                parser = IKEAPDFParser( 
-                    pdf_path=str(pdf_file),
-                    source_name=pdf_file.name
+                parser = IKEAPDFParser(
+                    pdf_path=str(pdf_file), source_name=pdf_file.name
                 )
 
                 # Llamada al método parse_and_chunk() para obtener los documentos a partir del PDF
@@ -130,7 +129,7 @@ def main() -> None:
         return
 
     logger.info(f"Indexing {len(all_documents)} documents into ChromaDB…")
-    
+
     # Indexar todos los documentos obtenidos en la colección de ChromaDB utilizando el método add_documents() del vector_store
     vector_store.add_documents(all_documents)
 
