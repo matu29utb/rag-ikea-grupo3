@@ -1,16 +1,13 @@
 """
-CLI script to batch-index documents from a local directory into ChromaDB.
-
-Usage examples:
-    # Index all documents in data/raw/ with OCR enabled
-    python scripts/index_documents.py --dir data/raw --ocr
-
-    # Reset the collection and re-index
-    python scripts/index_documents.py --dir data/raw --ocr --clear
-
-    # Non-recursive (top-level files only)
-    python scripts/index_documents.py --dir data/raw --no-recursive
-"""
+Script para indexar documentos desde un directorio en ChromaDB.
+Lee archivos CSV y PDF, los procesa y los indexa utilizando embeddings de AWS.
+Uso:
+    python scripts/index_documents.py --dir data/raw --clear
+Opciones:
+    --dir: Directorio raíz de los documentos (default: data/raw)
+    --clear: Limpiar la colección existente antes de indexar
+    --no-recursive: Solo indexar archivos en el directorio raíz (sin subcarpetas)
+    """
 from __future__ import annotations
 
 import argparse
@@ -18,7 +15,7 @@ import sys
 from pathlib import Path
 from unittest import loader
 
-# Add project root to sys.path so config / src are importable
+# Añadir el directorio raíz del proyecto al sys.path para permitir imports relativos
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from loguru import logger
@@ -62,8 +59,12 @@ def main() -> None:
     settings = Settings()
 
     logger.info("Initialising embeddings and vector store…")
-    embeddings = get_embeddings(settings) # Obtener las embeddings utilizando la función get_embeddings() con la configuración proporcionada
-    vector_store = ChromaVectorStore(embeddings, settings) # Instancia de ChromaVectorStore con las embeddings y configuración
+
+    # Obtener las embeddings utilizando la función get_embeddings() con la configuración proporcionada
+    embeddings = get_embeddings(settings)
+
+    # Instancia de ChromaVectorStore con las embeddings y configuración
+    vector_store = ChromaVectorStore(embeddings, settings)
 
     if args.clear:
         logger.warning("Clearing existing collection…")
@@ -87,8 +88,12 @@ def main() -> None:
         for csv_file in csv_dir.glob("*.csv"):
             try:
                 logger.info(f"Parsing CSV: {csv_file.name}")
-                parser = IKEACatalogParser(str(csv_file)) # Instancia de IKEACatalogParser con la ruta del archivo CSV
-                docs = parser.parse_to_documents() # Llamada al método parse_to_documents() para obtener los documentos
+
+                # Instancia de IKEACatalogParser con la ruta del archivo CSV
+                parser = IKEACatalogParser(str(csv_file))
+
+                # Llamada al método parse_to_documents() para obtener los documentos a partir del CSV
+                docs = parser.parse_to_documents()
                 all_documents.extend(docs)
 
             except Exception as e:
@@ -103,11 +108,15 @@ def main() -> None:
         for pdf_file in pdf_dir.glob("*.pdf"):
             try:
                 logger.info(f"Parsing PDF: {pdf_file.name}")
-                parser = IKEAPDFParser( # Instancia de IKEAPDFParser con la ruta del archivo PDF y el nombre de la fuente
+
+                # Instancia de IKEAPDFParser con la ruta del archivo PDF y el nombre de la fuente
+                parser = IKEAPDFParser( 
                     pdf_path=str(pdf_file),
                     source_name=pdf_file.name
                 )
-                docs = parser.parse_and_chunk() # Llamada al método parse_and_chunk() para obtener los documentos
+
+                # Llamada al método parse_and_chunk() para obtener los documentos a partir del PDF
+                docs = parser.parse_and_chunk()
                 all_documents.extend(docs)
 
             except Exception as e:
@@ -121,8 +130,11 @@ def main() -> None:
         return
 
     logger.info(f"Indexing {len(all_documents)} documents into ChromaDB…")
-    vector_store.add_documents(all_documents) # Indexar todos los documentos obtenidos
+    
+    # Indexar todos los documentos obtenidos en la colección de ChromaDB utilizando el método add_documents() del vector_store
+    vector_store.add_documents(all_documents)
 
+    # Obtener estadísticas de la colección después de la indexación utilizando el método get_collection_stats() del vector_store
     stats = vector_store.get_collection_stats()
 
     logger.success(
