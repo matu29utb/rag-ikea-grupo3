@@ -18,14 +18,15 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from pydantic import SecretStr
-from config.settings import Settings
-from src.embeddings.aws_embeddings import get_embeddings
-from src.retrieval.retriever import SmartRetriever
-from src.vectorstore.chroma_store import ChromaVectorStore
 
 # ── Make sure the project root is on sys.path ─────────────────────────────────
 _ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(_ROOT))
+
+from config.settings import Settings  # noqa: E402
+from src.embeddings.aws_embeddings import get_embeddings  # noqa: E402
+from src.retrieval.retriever import SmartRetriever  # noqa: E402
+from src.vectorstore.chroma_store import ChromaVectorStore  # noqa: E402
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
