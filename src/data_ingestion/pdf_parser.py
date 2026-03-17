@@ -53,7 +53,8 @@ class IKEAPDFParser:
                 "price": 0.0,
                 "width": 0.0,
                 "height": 0.0,
-                "depth": 0.0
+                "depth": 0.0,
+                "area_m2": 0.0
             }
 
         # Aplicamos el chunking
