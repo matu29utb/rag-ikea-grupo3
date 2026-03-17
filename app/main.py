@@ -53,8 +53,9 @@ def _get_session_history(session_id: str) -> BaseChatMessageHistory:
 # ── RAG system prompt ─────────────────────────────────────────────────────────
 _SYSTEM_PROMPT = """Eres un asistente experto en el catálogo de productos IKEA.
 Responde siempre en el idioma en que te pregunten.
-Basa tu respuesta únicamente en el contexto proporcionado.
-Si la información no está en el contexto, indícalo claramente.
+Para responder, usa primero el contexto proporcionado. Si la información no está en el contexto, \
+búscala en el historial de la conversación antes de decir que no tienes información.
+No hace falta que digas "según el contexto" o "según el historial", responde directamente.
 
 Contexto:
 {context}"""
@@ -132,7 +133,7 @@ def _render_sources(sources: List) -> None:
                 if detail_parts:
                     st.caption(" · ".join(detail_parts))
                 st.markdown(
-                    f'<p class="source-preview">{doc.page_content[:350].strip()}…</p>',
+                    f'<p class="source-preview">{doc.page_content.strip()}</p>',
                     unsafe_allow_html=True,
                 )
             with col_badge:
