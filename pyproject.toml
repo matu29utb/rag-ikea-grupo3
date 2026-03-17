@@ -26,6 +26,9 @@ dependencies = [
     "streamlit>=1.55.0",
 ]
 
+[tool.ruff]
+extend-include = ["*.ipynb"]
+
 [dependency-groups]
 dev = [
     "pyright>=1.1.408",
