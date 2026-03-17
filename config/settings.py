@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     # Bedrock Models
     # ─────────────────────────────────────────────────────────────────
     llm_model_id: str = Field(
-        "anthropic.claude-3-5-sonnet-20241022-v2:0", alias="LLM_MODEL_ID"
+        "us.anthropic.claude-3-5-sonnet-20241022-v2:0", alias="LLM_MODEL_ID"
     )
     embedding_model_id: str = Field(
         "amazon.titan-embed-text-v2:0", alias="EMBED_MODEL_ID"
