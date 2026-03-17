@@ -80,8 +80,8 @@ class IKEACatalogParser:
             # Creamos el contenido semantico para el embedding
             page_content = (
                 f"Producto: {nombre}. "
-                f"Categoría: {row.get('category', 'General')}. "
-                f"Descripción: {desc}. "
+                f"Categoria: {row.get('category', 'General')}. "
+                f"Descripcion: {desc}. "
                 f"Diseñador: {row.get('designer', 'IKEA')}. "
                 f"Colores adicionales disponibles: {row.get('other_colors', 'No')}."
             )
@@ -103,17 +103,3 @@ class IKEACatalogParser:
             documents.append(doc)
 
         return documents
-
-# ==========================================
-# TEST
-# ==========================================
-if __name__ == "__main__":
-    ruta_csv = "data/raw/csv/ikea.csv"
-
-    parser = IKEACatalogParser(csv_path=ruta_csv)
-    docs = parser.parse_to_documents()
-
-    print(f"✅ Se han procesado {len(docs)} productos con éxito.")
-    print("\n🔍 Ejemplo del primer documento:")
-    print("Contenido (Para Embeddings):\n", docs[0].page_content)
-    print("\nMetadatos (Para Filtros Matemáticos):\n", docs[0].metadata)
