@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 
 class SmartRetriever:
+<<<<<<< HEAD
     """Retriever configurable con soporte para filtrado por metadatos."""
 
     def __init__(self, vector_store: "ChromaVectorStore", settings: "Settings") -> None:
@@ -66,3 +67,6 @@ class SmartRetriever:
         return self.vector_store.similarity_search_with_score(
             query, k=top_k, filter=filter_dict
         )
+=======
+    pass
+>>>>>>> 82e65035b7759d14da1d5b1f31ebd1de3e3a442d
