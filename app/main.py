@@ -133,7 +133,7 @@ def _render_sources(sources: List) -> None:
                 if detail_parts:
                     st.caption(" · ".join(detail_parts))
                 st.markdown(
-                    f'<p class="source-preview">{doc.page_content.strip()}</p>',
+                    f'<p class="source-preview">{doc.page_content[:350].strip()}…</p>',
                     unsafe_allow_html=True,
                 )
             with col_badge:
