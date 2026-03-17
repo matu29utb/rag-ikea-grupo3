@@ -1,0 +1,2 @@
+class SmartRetriever:
+    pass
