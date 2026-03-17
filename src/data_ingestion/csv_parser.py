@@ -77,6 +77,13 @@ class IKEACatalogParser:
             desc = str(row.get('short_description', '')).strip()
             nombre = str(row.get('name', 'Desconocido')).strip()
 
+            # Extraemos en cm y pasamos a metros
+            width_m = float(row.get('width', 0.0)) / 100.0
+            depth_m = float(row.get('depth', 0.0)) / 100.0
+
+            # Calculamos el area en m2
+            area_m2 = round(width_m * depth_m, 4)
+
             # Creamos el contenido semantico para el embedding
             page_content = (
                 f"Producto: {nombre}. "
@@ -95,6 +102,7 @@ class IKEACatalogParser:
                 "width": float(row.get('width', 0.0)),
                 "height": float(row.get('height', 0.0)),
                 "depth": float(row.get('depth', 0.0)),
+                "area_m2": area_m2,
                 "link": str(row.get('link', '')),
                 "source": "ikea_database"
             }
