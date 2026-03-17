@@ -22,6 +22,12 @@ build/
 data/chroma_db/
 **/data/chroma_db/
 
+# Raw uploaded docs (keep directory, ignore content)
+data/raw/*
+!data/raw/.gitkeep
+**/data/raw/*
+!**/data/raw/.gitkeep
+
 # OCR temp files
 *.tmp
 
