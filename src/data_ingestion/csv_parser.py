@@ -18,13 +18,13 @@ class IKEACatalogParser:
         Lee el archivo de texto linea por linea y repara la estructura del CSV
         antes de pasarselo a Pandas.
         """
-        with open(self.csv_path, 'r', encoding='utf-8') as f:
+        with open(self.csv_path, "r", encoding="utf-8") as f:
             lines: list[str] = f.readlines()
 
         cleaned_lines: list[str] = []
         for line in lines:
             # Eliminamos saltos de linea y la "basura" final (;;;)
-            line = line.strip().rstrip(';')
+            line = line.strip().rstrip(";")
 
             # Si la linea entera esta envuelta en comillas (error de exportacion), las quitamos
             if line.startswith('"') and line.endswith('"'):
@@ -36,10 +36,10 @@ class IKEACatalogParser:
             cleaned_lines.append(line)
 
         # Convertimos las lineas limpias a un buffer en memoria
-        csv_buffer: io.StringIO = io.StringIO('\n'.join(cleaned_lines))
+        csv_buffer: io.StringIO = io.StringIO("\n".join(cleaned_lines))
 
         # Leemos el CSV ya reparado
-        df: pd.DataFrame = pd.read_csv(csv_buffer, sep=',', on_bad_lines='skip')
+        df: pd.DataFrame = pd.read_csv(csv_buffer, sep=",", on_bad_lines="skip")
         return df
 
     def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -50,16 +50,16 @@ class IKEACatalogParser:
         df.columns = df.columns.str.strip()
 
         # Convertimos dimensiones y precio a numerico, rellenando NaN con 0.0
-        dimension_cols: list[str] = ['depth', 'height', 'width', 'price']
+        dimension_cols: list[str] = ["depth", "height", "width", "price"]
         for col in dimension_cols:
             if col in df.columns:
                 # Quitamos posibles strings residuales en los precios antes de convertir
-                if col == 'price':
-                    df[col] = df[col].astype(str).str.replace(r'[^\d.]', '', regex=True)
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0)
+                if col == "price":
+                    df[col] = df[col].astype(str).str.replace(r"[^\d.]", "", regex=True)
+                df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)  # type: ignore[union-attr]
 
         # Rellenamos el resto de valores nulos con strings vacios
-        df = df.fillna('')
+        df = df.fillna("")
 
         return df
 
@@ -75,12 +75,12 @@ class IKEACatalogParser:
 
         for _, row in df.iterrows():
             # Forzamos string para evitar errores con nulos
-            desc: str = str(row.get('short_description', '')).strip()
-            nombre: str = str(row.get('name', 'Desconocido')).strip()
+            desc: str = str(row.get("short_description", "")).strip()
+            nombre: str = str(row.get("name", "Desconocido")).strip()
 
             # Extraemos en cm y pasamos a metros
-            width_m: float = float(row.get('width', 0.0)) / 100.0
-            depth_m: float = float(row.get('depth', 0.0)) / 100.0
+            width_m: float = float(row.get("width") or 0.0) / 100.0
+            depth_m: float = float(row.get("depth") or 0.0) / 100.0
 
             # Calculamos el area en m2
             area_m2: float = round(width_m * depth_m, 4)
@@ -96,16 +96,16 @@ class IKEACatalogParser:
 
             # Extraemos metadatos exactos para filtrado
             metadata: dict[str, str | float] = {
-                "item_id": str(row.get('item_id', '')),
+                "item_id": str(row.get("item_id", "")),
                 "name": nombre,
-                "category": str(row.get('category', '')),
-                "price": float(row.get('price', 0.0)),
-                "width": float(row.get('width', 0.0)),
-                "height": float(row.get('height', 0.0)),
-                "depth": float(row.get('depth', 0.0)),
+                "category": str(row.get("category", "")),
+                "price": float(row.get("price") or 0.0),
+                "width": float(row.get("width") or 0.0),
+                "height": float(row.get("height") or 0.0),
+                "depth": float(row.get("depth") or 0.0),
                 "area_m2": area_m2,
-                "link": str(row.get('link', '')),
-                "source": "ikea_database"
+                "link": str(row.get("link", "")),
+                "source": "ikea_database",
             }
 
             doc: Document = Document(page_content=page_content, metadata=metadata)

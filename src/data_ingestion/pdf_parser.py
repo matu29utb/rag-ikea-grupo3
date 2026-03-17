@@ -2,14 +2,17 @@ import os
 from typing import List
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyMuPDFLoader
+
 # from langchain_community.document_loaders import AmazonTextractPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 class IKEAPDFParser:
     """
     Clase para ingerir catalogos en PDF, extraer su texto y fragmentarlo
     conservando metadatos para la base de datos vectorial.
     """
+
     def __init__(self, pdf_path: str, source_name: str):
         self.pdf_path = pdf_path
         self.source_name = source_name
@@ -18,9 +21,7 @@ class IKEAPDFParser:
         # 1000 caracteres
         # 150 de solapamiento
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=150,
-            separators=["\n\n", "\n", ".", " ", ""]
+            chunk_size=1000, chunk_overlap=150, separators=["\n\n", "\n", ".", " ", ""]
         )
 
     def load_documents(self) -> List[Document]:
@@ -54,7 +55,7 @@ class IKEAPDFParser:
                 "width": 0.0,
                 "height": 0.0,
                 "depth": 0.0,
-                "area_m2": 0.0
+                "area_m2": 0.0,
             }
 
         # Aplicamos el chunking
