@@ -19,8 +19,8 @@ build/
 .vscode/
 
 # ChromaDB persistent data
-# data/chroma_db/
-# **/data/chroma_db/
+data/chroma_db/
+**/data/chroma_db/
 
 # Raw uploaded docs (keep directory, ignore content)
 data/raw/*

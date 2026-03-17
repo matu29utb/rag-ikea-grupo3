@@ -14,9 +14,11 @@ from typing import List
 
 import streamlit as st
 from langchain_aws import ChatBedrock
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from pydantic import SecretStr
 
 # ── Make sure the project root is on sys.path ─────────────────────────────────
@@ -37,6 +39,17 @@ st.set_page_config(
     menu_items={},
 )
 
+
+# ── Per-session message store ─────────────────────────────────────────────────
+def _get_session_history(session_id: str) -> BaseChatMessageHistory:
+    if "lc_store" not in st.session_state:
+        st.session_state["lc_store"] = {}
+    store: dict[str, ChatMessageHistory] = st.session_state["lc_store"]
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+
 # ── RAG system prompt ─────────────────────────────────────────────────────────
 _SYSTEM_PROMPT = """Eres un asistente experto en el catálogo de productos IKEA.
 Responde siempre en el idioma en que te pregunten.
@@ -49,7 +62,7 @@ Contexto:
 _PROMPT = ChatPromptTemplate.from_messages(
     [
         ("system", _SYSTEM_PROMPT),
-        MessagesPlaceholder(variable_name="history"),
+        MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{question}"),
     ]
 )
@@ -77,24 +90,21 @@ def _get_session_id() -> str:
     return st.session_state["session_id"]
 
 
-def _build_history() -> list:
-    history = []
-    for msg in st.session_state.get("messages", []):
-        if msg["role"] == "user":
-            history.append(HumanMessage(content=msg["content"]))
-        elif msg["role"] == "assistant":
-            history.append(AIMessage(content=msg["content"]))
-    return history
-
-
-def _ask(question: str, retriever: SmartRetriever, llm: ChatBedrock) -> dict:
+def _ask(
+    question: str, retriever: SmartRetriever, llm: ChatBedrock, session_id: str
+) -> dict:
     docs = retriever.retrieve(question)
     context = "\n\n".join(doc.page_content for doc in docs)
-    history = _build_history()
 
-    chain = _PROMPT | llm | StrOutputParser()
+    chain = RunnableWithMessageHistory(
+        _PROMPT | llm | StrOutputParser(),
+        _get_session_history,
+        input_messages_key="question",
+        history_messages_key="chat_history",
+    )
     answer = chain.invoke(
-        {"context": context, "history": history, "question": question}
+        {"context": context, "question": question},
+        config={"configurable": {"session_id": session_id}},
     )
     return {"answer": answer, "source_documents": docs}
 
@@ -148,6 +158,8 @@ def render_chat(
     with col_btn:
         st.write("")  # vertical alignment nudge
         if st.button("🗑️ Limpiar", use_container_width=True):
+            session_id = _get_session_id()
+            _get_session_history(session_id).clear()
             st.session_state["messages"] = []
             st.rerun()
 
@@ -168,7 +180,7 @@ def render_chat(
         with st.chat_message("assistant"):
             with st.spinner("Buscando en la base de conocimiento…"):
                 try:
-                    result = _ask(prompt, retriever, llm)
+                    result = _ask(prompt, retriever, llm, _get_session_id())
                     answer = result["answer"]
                     sources = result["source_documents"]
 
