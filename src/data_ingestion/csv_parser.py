@@ -1,7 +1,8 @@
-import pandas as pd
 import io
+
+import pandas as pd
 from langchain_core.documents import Document
-from typing import List
+
 
 class IKEACatalogParser:
     """
@@ -9,8 +10,8 @@ class IKEACatalogParser:
     para su posterior indexacion en una base de datos vectorial.
     """
 
-    def __init__(self, csv_path: str):
-        self.csv_path = csv_path
+    def __init__(self, csv_path: str) -> None:
+        self.csv_path: str = csv_path
 
     def _load_and_repair_csv(self) -> pd.DataFrame:
         """
@@ -18,9 +19,9 @@ class IKEACatalogParser:
         antes de pasarselo a Pandas.
         """
         with open(self.csv_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+            lines: list[str] = f.readlines()
 
-        cleaned_lines = []
+        cleaned_lines: list[str] = []
         for line in lines:
             # Eliminamos saltos de linea y la "basura" final (;;;)
             line = line.strip().rstrip(';')
@@ -35,10 +36,10 @@ class IKEACatalogParser:
             cleaned_lines.append(line)
 
         # Convertimos las lineas limpias a un buffer en memoria
-        csv_buffer = io.StringIO('\n'.join(cleaned_lines))
+        csv_buffer: io.StringIO = io.StringIO('\n'.join(cleaned_lines))
 
         # Leemos el CSV ya reparado
-        df = pd.read_csv(csv_buffer, sep=',', on_bad_lines='skip')
+        df: pd.DataFrame = pd.read_csv(csv_buffer, sep=',', on_bad_lines='skip')
         return df
 
     def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -49,7 +50,7 @@ class IKEACatalogParser:
         df.columns = df.columns.str.strip()
 
         # Convertimos dimensiones y precio a numerico, rellenando NaN con 0.0
-        dimension_cols = ['depth', 'height', 'width', 'price']
+        dimension_cols: list[str] = ['depth', 'height', 'width', 'price']
         for col in dimension_cols:
             if col in df.columns:
                 # Quitamos posibles strings residuales en los precios antes de convertir
@@ -62,30 +63,30 @@ class IKEACatalogParser:
 
         return df
 
-    def parse_to_documents(self) -> List[Document]:
+    def parse_to_documents(self) -> list[Document]:
         """
         Convierte cada fila del DataFrame en un Documento de LangChain.
         """
         # Usamos nuestro reparador personalizado
-        df = self._load_and_repair_csv()
+        df: pd.DataFrame = self._load_and_repair_csv()
         df = self._clean_data(df)
 
-        documents = []
+        documents: list[Document] = []
 
         for _, row in df.iterrows():
             # Forzamos string para evitar errores con nulos
-            desc = str(row.get('short_description', '')).strip()
-            nombre = str(row.get('name', 'Desconocido')).strip()
+            desc: str = str(row.get('short_description', '')).strip()
+            nombre: str = str(row.get('name', 'Desconocido')).strip()
 
             # Extraemos en cm y pasamos a metros
-            width_m = float(row.get('width', 0.0)) / 100.0
-            depth_m = float(row.get('depth', 0.0)) / 100.0
+            width_m: float = float(row.get('width', 0.0)) / 100.0
+            depth_m: float = float(row.get('depth', 0.0)) / 100.0
 
             # Calculamos el area en m2
-            area_m2 = round(width_m * depth_m, 4)
+            area_m2: float = round(width_m * depth_m, 4)
 
             # Creamos el contenido semantico para el embedding
-            page_content = (
+            page_content: str = (
                 f"Producto: {nombre}. "
                 f"Categoria: {row.get('category', 'General')}. "
                 f"Descripcion: {desc}. "
@@ -94,7 +95,7 @@ class IKEACatalogParser:
             )
 
             # Extraemos metadatos exactos para filtrado
-            metadata = {
+            metadata: dict[str, str | float] = {
                 "item_id": str(row.get('item_id', '')),
                 "name": nombre,
                 "category": str(row.get('category', '')),
@@ -107,7 +108,7 @@ class IKEACatalogParser:
                 "source": "ikea_database"
             }
 
-            doc = Document(page_content=page_content, metadata=metadata)
+            doc: Document = Document(page_content=page_content, metadata=metadata)
             documents.append(doc)
 
         return documents
