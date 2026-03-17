@@ -6,7 +6,6 @@ Uso:
 Opciones:
     --dir: Directorio raíz de los documentos (default: data/raw)
     --clear: Limpiar la colección existente antes de indexar
-    --no-recursive: Solo indexar archivos en el directorio raíz (sin subcarpetas)
 """
 
 from __future__ import annotations
@@ -37,7 +36,6 @@ def parse_args() -> argparse.Namespace:
         "--dir",  # Directorio raíz de los documentos (data/raw/)
         type=str,
         default="data/raw",
-        required=True,
         metavar="PATH",
         help="Directory containing the documents to index",
     )
@@ -45,11 +43,6 @@ def parse_args() -> argparse.Namespace:
         "--clear",  # Opción para limpiar la colección existente antes de indexar
         action="store_true",
         help="⚠️  Clear the existing ChromaDB collection before indexing",
-    )
-    parser.add_argument(
-        "--no-recursive",  # Opción para no procesar subdirectorios
-        action="store_true",
-        help="Only index files in the top-level directory (skip sub-folders)",
     )
     return parser.parse_args()
 
@@ -130,8 +123,14 @@ def main() -> None:
 
     logger.info(f"Indexing {len(all_documents)} documents into ChromaDB…")
 
-    # Indexar todos los documentos obtenidos en la colección de ChromaDB utilizando el método add_documents() del vector_store
-    vector_store.add_documents(all_documents)
+    # Indexar los documentos en lotes para evitar problemas de memoria y mejorar el rendimiento
+    BATCH_SIZE = 500
+
+    for i in range(0, len(all_documents), BATCH_SIZE):
+        batch = all_documents[i : i + BATCH_SIZE]
+
+        # Indexar todos los documentos obtenidos en la colección de ChromaDB utilizando el método add_documents() del vector_store
+        vector_store.add_documents(batch)
 
     # Obtener estadísticas de la colección después de la indexación utilizando el método get_collection_stats() del vector_store
     stats = vector_store.get_collection_stats()
